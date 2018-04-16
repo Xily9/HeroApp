@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:checked="true"
+            android:id="@+id/nav_home"
+            android:title="主页"
+            android:icon="@drawable/ic_home"
+            />
+        <item
+            android:id="@+id/nav_prize"
+            android:title="奖品列表"
+            android:icon="@drawable/ic_toys_black_48dp"/>
+    </group>
+        <item android:title="更多">
+            <menu>
+                <item
+                    android:id="@+id/nav_theme"
+                    android:title="主题"
+                    android:icon="@drawable/ic_theme"/>
+                <item
+                    android:id="@+id/nav_about"
+                    android:title="关于"
+                    android:icon="@drawable/ic_about"/>
+            </menu>
+        </item>
+</menu>
