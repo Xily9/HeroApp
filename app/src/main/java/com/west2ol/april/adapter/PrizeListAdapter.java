@@ -1,17 +1,14 @@
 package com.west2ol.april.adapter;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import com.west2ol.april.R;
-import com.west2ol.april.entity.PrizeListInfo;
-import com.west2ol.april.entity.QuestionsInfo;
+import com.west2ol.april.entity.receive.PrizeListInfo;
 
 import java.util.List;
 

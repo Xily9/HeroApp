@@ -1,8 +1,8 @@
-package com.west2ol.april.entity;
+package com.west2ol.april.entity.send;
 
 import java.util.List;
 
-public class PostAnswerInfo {
+public class AnswerInfo {
 
     /**
      * uid : 1

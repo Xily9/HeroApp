@@ -21,6 +21,8 @@
         <activity android:name=".module.PrizeActivity" />
         <activity android:name=".module.AboutActivity" />
         <activity android:name=".module.MainActivity" />
+        <activity android:name=".module.LoginActivity" />
+        <activity android:name=".module.RegActivity" />
 
     </application>
 

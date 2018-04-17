@@ -3,16 +3,18 @@ package com.west2ol.april.module;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
 
+import com.google.gson.Gson;
 import com.west2ol.april.R;
 import com.west2ol.april.base.RxBaseActivity;
+import com.west2ol.april.entity.send.TokenInfo;
 import com.west2ol.april.network.RetrofitHelper;
 import com.west2ol.april.utils.DeviceUtil;
 import com.west2ol.april.utils.PreferenceUtil;
 import com.west2ol.april.utils.SnackbarUtil;
 
-import rx.Observable;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -28,16 +30,21 @@ public class SplashActivity extends RxBaseActivity{
         DeviceUtil.hideStatusBar(getWindow(),true);
         user = new PreferenceUtil(PreferenceUtil.FILE_USER);
         if(TextUtils.isEmpty(user.get("token",null))){
-            loadData();
+            jumpToLogin();
         }else{
-            jumpToMain();
+            loadData();
         }
     }
 
     @Override
     public void loadData() {
+        TokenInfo questions = new TokenInfo();
+        questions.setToken(user.get("token", null));
+        questions.setUid(user.get("id", 0));
+        String str = new Gson().toJson(questions);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("Content-Type, application/json"), str);
         RetrofitHelper.getBwyxApi()
-                .getToken()
+                .refreshToken(requestBody)
                 .compose(bindToLifecycle())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -49,16 +56,21 @@ public class SplashActivity extends RxBaseActivity{
                             jumpToMain();
                             break;
                         default:
-                            throw new RuntimeException("未知错误!");
-
+                            jumpToLogin();
                     }
                 },throwable -> {
                     throwable.printStackTrace();
                     SnackbarUtil.showMessage(getWindow().getDecorView(), throwable.getMessage());
                 });
     }
-    void jumpToMain(){
+
+    private void jumpToMain() {
         startActivity(new Intent(this,MainActivity.class));
+        finish();
+    }
+
+    private void jumpToLogin() {
+        startActivity(new Intent(this, LoginActivity.class));
         finish();
     }
 }

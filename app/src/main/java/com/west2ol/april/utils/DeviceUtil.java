@@ -1,9 +1,12 @@
 package com.west2ol.april.utils;
 
+import android.app.Activity;
+import android.content.Context;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 
 import com.west2ol.april.MyApplication;
 
@@ -50,5 +53,10 @@ public class DeviceUtil {
         }
         window.setAttributes(p);
         window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+    }
+
+    public static void hideSoftInput(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) MyApplication.getInstance().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
     }
 }

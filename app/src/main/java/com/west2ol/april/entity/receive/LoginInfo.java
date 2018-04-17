@@ -1,14 +1,24 @@
-package com.west2ol.april.entity;
+package com.west2ol.april.entity.receive;
 
-public class PostTokenInfo {
+public class LoginInfo {
 
     /**
+     * status : 0
      * uid : 1
-     * token : 2b4c07ac-feb9-4975-9cee-1c1ce37be675
+     * token : f8cafa6c-cfb9-468f-ad9a-f0148d3f6314
      */
 
+    private int status;
     private int uid;
     private String token;
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
 
     public int getUid() {
         return uid;

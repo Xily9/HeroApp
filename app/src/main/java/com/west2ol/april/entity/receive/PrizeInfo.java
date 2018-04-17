@@ -1,4 +1,4 @@
-package com.west2ol.april.entity;
+package com.west2ol.april.entity.receive;
 
 public class PrizeInfo {
 

@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.west2ol.april.R;
-import com.west2ol.april.entity.PrizeListInfo;
+import com.west2ol.april.entity.receive.PrizeListInfo;
 
 import java.util.List;
 

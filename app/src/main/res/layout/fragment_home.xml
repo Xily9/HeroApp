@@ -9,18 +9,19 @@
         android:orientation="vertical"
         android:padding="10dp">
         <TextView
+            android:id="@+id/rules"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="规则：总共有6道题目,全部答对有奖品"
             android:textColor="#000"
-            android:textSize="18sp" />
-
+            android:textSize="18sp"
+            android:lineSpacingExtra="5dp" />
         <TextView
             android:id="@+id/time"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#000"
-            android:textSize="18sp" />
+            android:textSize="18sp"
+            android:lineSpacingExtra="5dp" />
 
         <Button
             android:id="@+id/btn_go"

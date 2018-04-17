@@ -85,6 +85,7 @@ public class PreferenceUtil {
      * 移除某个key值已经对应的值
      *
      * @param key
+     * @return
      */
     public PreferenceUtil remove(String key) {
         editor.remove(key);

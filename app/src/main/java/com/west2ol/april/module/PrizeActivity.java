@@ -13,10 +13,10 @@ import com.google.gson.Gson;
 import com.west2ol.april.R;
 import com.west2ol.april.adapter.PrizeListAdapter;
 import com.west2ol.april.base.RxBaseActivity;
-import com.west2ol.april.entity.PostTokenInfo;
-import com.west2ol.april.entity.PrizeListInfo;
+import com.west2ol.april.entity.send.TokenInfo;
+import com.west2ol.april.entity.receive.PrizeListInfo;
 import com.west2ol.april.network.RetrofitHelper;
-import com.west2ol.april.utils.LogUtil;
+import com.west2ol.april.utils.ErrorUtil;
 import com.west2ol.april.utils.PreferenceUtil;
 import com.west2ol.april.utils.SnackbarUtil;
 
@@ -41,7 +41,8 @@ public class PrizeActivity extends RxBaseActivity {
     private PreferenceUtil user;
     int id;
     String token;
-    List<PrizeListInfo.PrizeBean> prizeBeans=new ArrayList<>();
+    List<PrizeListInfo.PrizeBean> prizeBeans = new ArrayList<>();
+
     @Override
     public int getLayoutId() {
         return R.layout.activity_prize;
@@ -58,7 +59,7 @@ public class PrizeActivity extends RxBaseActivity {
 
     @Override
     public void loadData() {
-        PostTokenInfo questions = new PostTokenInfo();
+        TokenInfo questions = new TokenInfo();
         questions.setToken(token);
         questions.setUid(id);
         String str = new Gson().toJson(questions);
@@ -75,19 +76,28 @@ public class PrizeActivity extends RxBaseActivity {
                 .subscribe(prizeListInfo -> {
                     switch (prizeListInfo.getStatus()) {
                         case 0:
-                            if(prizeListInfo.getPrize().size()==0){
+                            if (prizeListInfo.getPrize().size() == 0) {
                                 new AlertDialog.Builder(this)
                                         .setTitle("非常抱歉!")
                                         .setMessage("虽然你答对了全部题目,但是,,,没有奖品了T_T")
                                         .setPositiveButton("确定", (dialogInterface, i) -> finish())
                                         .setCancelable(false)
                                         .show();
-                            }else {
+                            } else {
                                 prizeBeans.addAll(prizeListInfo.getPrize());
                                 finishTask();
-                            }break;
+                            }
+                            break;
+                        case 5:
+                            new AlertDialog.Builder(this)
+                                    .setTitle("非常抱歉!")
+                                    .setMessage("虽然你答对了全部题目,但是,,,没有奖品了T_T")
+                                    .setPositiveButton("确定", (dialogInterface, i) -> finish())
+                                    .setCancelable(false)
+                                    .show();
+                            break;
                         default:
-                            throw new RuntimeException("未知错误!");
+                            ErrorUtil.error(prizeListInfo.getStatus());
                     }
                 }, throwable -> {
                     throwable.printStackTrace();
@@ -98,12 +108,12 @@ public class PrizeActivity extends RxBaseActivity {
     @Override
     public void finishTask() {
         prizes.setLayoutManager(new LinearLayoutManager(this));
-        prizes.setAdapter(new PrizeListAdapter(this,prizeBeans));
+        prizes.setAdapter(new PrizeListAdapter(this, prizeBeans));
     }
 
     @OnClick(R.id.btn_go)
     void post() {
-        PostTokenInfo questions = new PostTokenInfo();
+        TokenInfo questions = new TokenInfo();
         questions.setToken(token);
         questions.setUid(id);
         String str = new Gson().toJson(questions);
@@ -130,10 +140,8 @@ public class PrizeActivity extends RxBaseActivity {
                                     .show();
                             isPrize = true;
                             break;
-                        case 4:
-                            throw new RuntimeException("错误!你没有抽奖权限!");
-                            default:
-                                throw new RuntimeException("未知错误!");
+                        default:
+                            ErrorUtil.error(prizeInfo.getStatus());
                     }
                 }, throwable -> {
                     throwable.printStackTrace();

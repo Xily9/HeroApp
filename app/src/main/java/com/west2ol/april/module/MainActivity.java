@@ -15,9 +15,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -26,35 +24,41 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
 import com.west2ol.april.R;
 import com.west2ol.april.base.RxBaseActivity;
-import com.west2ol.april.entity.TimeInfo;
+import com.west2ol.april.entity.send.TokenInfo;
 import com.west2ol.april.network.RetrofitHelper;
 import com.west2ol.april.utils.DeviceUtil;
+import com.west2ol.april.utils.ErrorUtil;
 import com.west2ol.april.utils.PreferenceUtil;
 import com.west2ol.april.utils.SnackbarUtil;
 import com.west2ol.april.utils.ThemeUtil;
 import com.west2ol.april.utils.ToastUtil;
 
-import java.text.SimpleDateFormat;
+import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
-import butterknife.OnClick;
-import rx.Observable;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
-public class MainActivity extends RxBaseActivity implements NavigationView.OnNavigationItemSelectedListener{
+
+public class MainActivity extends RxBaseActivity implements NavigationView.OnNavigationItemSelectedListener {
     @BindView(R.id.drawer_layout)
     DrawerLayout mDrawerLayout;
     @BindView(R.id.nav_view)
     NavigationView mNavigationView;
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
+    @BindView(R.id.progress)
+    ProgressBar progressBar;
     private AlertDialog dialog;
-    private long exitTime,expTime;
+    private long exitTime, expTime;
     private PreferenceUtil user;
     private Fragment[] fragments;
-    private int currentTabIndex,index;
+    private int currentTabIndex, index;
+
     @Override
     public int getLayoutId() {
         return R.layout.activity_main;
@@ -77,11 +81,10 @@ public class MainActivity extends RxBaseActivity implements NavigationView.OnNav
         }
     }
 
-
     private void initFragment() {
-        HomeFragment homeFragment=HomeFragment.newInstance();
-        PrizeListFragment prizeListFragment=PrizeListFragment.newInstance();
-        fragments=new Fragment[]{
+        HomeFragment homeFragment = HomeFragment.newInstance();
+        PrizeListFragment prizeListFragment = PrizeListFragment.newInstance();
+        fragments = new Fragment[]{
                 homeFragment,
                 prizeListFragment
         };
@@ -135,9 +138,10 @@ public class MainActivity extends RxBaseActivity implements NavigationView.OnNav
                 dialog = new AlertDialog.Builder(MainActivity.this).setTitle("设置主题").setView(linearLayout).show();
                 break;
             case R.id.nav_about:
-                startActivity(new Intent(this,AboutActivity.class));
+                startActivity(new Intent(this, AboutActivity.class));
                 break;
-        } mDrawerLayout.closeDrawer(GravityCompat.START);
+        }
+        mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 
@@ -146,20 +150,68 @@ public class MainActivity extends RxBaseActivity implements NavigationView.OnNav
         mDrawerToggle.syncState();
         mNavigationView.setNavigationItemSelectedListener(this);
         View sideMenuView = mNavigationView.inflateHeaderView(R.layout.layout_side_menu);
-        ((TextView)sideMenuView.findViewById(R.id.id)).setText("您的ID："+user.get("id",0));
+        String name = user.get("name", "游客");
+        ((TextView) sideMenuView.findViewById(R.id.id)).setText("ID：" + user.get("id", 0));
+        ((TextView) sideMenuView.findViewById(R.id.user)).setText(name);
+        LinearLayout linearLayout = sideMenuView.findViewById(R.id.transfer);
+        if (name.equals("游客")) {
+            linearLayout.setVisibility(View.VISIBLE);
+            Intent intent = new Intent(this, RegActivity.class);
+            intent.putExtra("guest", true);
+            linearLayout.setOnClickListener(v -> {
+                mDrawerLayout.closeDrawer(GravityCompat.START);
+                startActivity(intent);
+            });
+        }
+        sideMenuView.findViewById(R.id.logout).setOnClickListener(v -> {
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle("注销")
+                    .setMessage("确定要注销吗？")
+                    .setPositiveButton("确定", (dialog, which) -> {
+                                TokenInfo questions = new TokenInfo();
+                                questions.setToken(user.get("token", null));
+                                questions.setUid(user.get("id", 0));
+                                String str = new Gson().toJson(questions);
+                                RequestBody requestBody = RequestBody.create(MediaType.parse("Content-Type, application/json"), str);
+                                RetrofitHelper.getBwyxApi()
+                                        .logout(requestBody)
+                                        .compose(bindToLifecycle())
+                                        .subscribeOn(Schedulers.io())
+                                        .doOnSubscribe(() -> progressBar.setVisibility(View.VISIBLE))
+                                        .doOnUnsubscribe(() -> {
+                                            progressBar.setVisibility(View.GONE);
+                                            user.clear();
+                                            startActivity(new Intent(this, LoginActivity.class));
+                                            finish();
+                                        })
+                                        .subscribeOn(AndroidSchedulers.mainThread())
+                                        .unsubscribeOn(AndroidSchedulers.mainThread())
+                                        .observeOn(AndroidSchedulers.mainThread())
+                                        .subscribe(logoutInfo -> {
+
+                                        }, throwable -> {
+                                            throwable.printStackTrace();
+                                            SnackbarUtil.showMessage(getWindow().getDecorView(), throwable.getMessage());
+                                        });
+                            }
+                    ).setNegativeButton("取消", null)
+                    .show();
+
+        });
     }
 
     public void onBackPressed() {
         if (mDrawerLayout.isDrawerOpen(GravityCompat.START)) {
             mDrawerLayout.closeDrawer(GravityCompat.START);
-        }
-        else if (System.currentTimeMillis() - exitTime < 2000) {
+        } else if (System.currentTimeMillis() - exitTime < 2000) {
             super.onBackPressed();
         } else {
             ToastUtil.ShortToast("再按一次返回键退出程序");
             exitTime = System.currentTimeMillis();
         }
     }
+
     private void switchFragment() {
         FragmentTransaction trx = getSupportFragmentManager().beginTransaction();
         trx.hide(fragments[currentTabIndex]);
@@ -169,7 +221,8 @@ public class MainActivity extends RxBaseActivity implements NavigationView.OnNav
         trx.show(fragments[index]).commit();
         currentTabIndex = index;
     }
-    private void changeFragmentIndex( int currentIndex) {
+
+    private void changeFragmentIndex(int currentIndex) {
         index = currentIndex;
         switchFragment();
     }

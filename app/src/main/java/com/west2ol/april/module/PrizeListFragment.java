@@ -2,23 +2,18 @@ package com.west2ol.april.module;
 
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.widget.ProgressBar;
 
 import com.google.gson.Gson;
 import com.west2ol.april.R;
 import com.west2ol.april.adapter.OwnPrizeAdapter;
-import com.west2ol.april.adapter.PrizeListAdapter;
 import com.west2ol.april.base.RxBaseFragment;
-import com.west2ol.april.entity.PostTokenInfo;
-import com.west2ol.april.entity.PrizeListInfo;
+import com.west2ol.april.entity.send.TokenInfo;
+import com.west2ol.april.entity.receive.PrizeListInfo;
 import com.west2ol.april.network.RetrofitHelper;
 import com.west2ol.april.utils.ColorUtil;
-import com.west2ol.april.utils.LogUtil;
+import com.west2ol.april.utils.ErrorUtil;
 import com.west2ol.april.utils.PreferenceUtil;
 import com.west2ol.april.utils.SnackbarUtil;
 
@@ -66,7 +61,7 @@ public class PrizeListFragment extends RxBaseFragment {
 
     @Override
     protected void loadData() {
-        PostTokenInfo questions = new PostTokenInfo();
+        TokenInfo questions = new TokenInfo();
         questions.setToken(token);
         questions.setUid(id);
         String str = new Gson().toJson(questions);
@@ -84,14 +79,14 @@ public class PrizeListFragment extends RxBaseFragment {
                     switch (prizeListInfo.getStatus()) {
                         case 0:
                             if(prizeListInfo.getPrize().size()==0){
-                                throw new RuntimeException("大小为空!!");
+                                throw new RuntimeException("你还没有获得过任何奖品呢!!!");
                             }else {
                                 prizeBeans.clear();
                                 prizeBeans.addAll(prizeListInfo.getPrize());
                                 finishTask();
                             }break;
                         default:
-                            throw new RuntimeException("未知错误!");
+                            ErrorUtil.error(prizeListInfo.getStatus());
                     }
                 }, throwable -> {
                     throwable.printStackTrace();
@@ -103,5 +98,13 @@ public class PrizeListFragment extends RxBaseFragment {
     public void finishTask() {
         prizes.setLayoutManager(new LinearLayoutManager(getActivity()));
         prizes.setAdapter(new OwnPrizeAdapter(getActivity(),prizeBeans));
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (!hidden) {
+            initToolbar();
+        }
     }
 }

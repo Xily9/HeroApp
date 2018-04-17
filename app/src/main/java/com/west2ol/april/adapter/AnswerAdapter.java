@@ -2,17 +2,15 @@ package com.west2ol.april.adapter;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.west2ol.april.R;
-import com.west2ol.april.entity.QuestionsInfo;
+import com.west2ol.april.entity.receive.QuestionsInfo;
 
 import java.util.List;
 
@@ -30,6 +28,11 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.ViewHolder
         this.userAnswer=userAnswer;
         this.answer=answer;
     }
+
+    public void setUserAnswer(int userAnswer) {
+        this.userAnswer = userAnswer;
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(mContext).inflate(R.layout.layout_item_answers,parent,false));
@@ -60,6 +63,7 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.ViewHolder
         }
         holder.description.setText(answersBean.getDescription());
         holder.itemView.setOnClickListener(view -> listener.onClick(holder.alpha,position));
+        holder.alpha.setOnClickListener(view -> listener.onClick(holder.alpha, position));
     }
 
     public void setOnItemClickListener(onItemClickListener listener){
