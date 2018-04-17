@@ -24,9 +24,9 @@ import com.google.gson.Gson;
 import com.west2ol.april.R;
 import com.west2ol.april.adapter.AnswerAdapter;
 import com.west2ol.april.base.RxBaseActivity;
-import com.west2ol.april.entity.send.TokenInfo;
-import com.west2ol.april.entity.send.AnswerInfo;
 import com.west2ol.april.entity.receive.QuestionsInfo;
+import com.west2ol.april.entity.send.AnswerInfo;
+import com.west2ol.april.entity.send.TokenInfo;
 import com.west2ol.april.network.RetrofitHelper;
 import com.west2ol.april.utils.DeviceUtil;
 import com.west2ol.april.utils.ErrorUtil;
@@ -139,12 +139,8 @@ public class AnswerActivity extends RxBaseActivity {
                                 postAnswers();
                             }
                             break;
-                        case 1:
-                            throw new RuntimeException("抱歉,活动时间已过!");
-                        case 2:
-                            throw new RuntimeException("错误,token无效!");
                         default:
-                            throw new RuntimeException("未知错误,错误码:" + questionsInfo.getStatus());
+                            ErrorUtil.error(questionsInfo.getStatus());
                     }
                 }, throwable -> {
                     throwable.printStackTrace();
