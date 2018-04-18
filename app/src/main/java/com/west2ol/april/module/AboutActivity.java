@@ -6,8 +6,11 @@ import android.view.MenuItem;
 
 import com.west2ol.april.R;
 import com.west2ol.april.base.RxBaseActivity;
+import com.west2ol.april.utils.PreferenceUtil;
+import com.west2ol.april.utils.ToastUtil;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 public class AboutActivity extends RxBaseActivity {
     @BindView(R.id.toolbar)
@@ -31,6 +34,15 @@ public class AboutActivity extends RxBaseActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
     }
+
+    @OnClick(R.id.cheat)
+    void cheat() {
+        PreferenceUtil user = new PreferenceUtil(PreferenceUtil.FILE_USER);
+        boolean isCheat = user.get("cheat", false);
+        user.put("cheat", !isCheat);
+        ToastUtil.ShortToast((isCheat ? "关闭" : "开启") + "作弊模式成功!!");
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {

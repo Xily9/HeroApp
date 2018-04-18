@@ -49,7 +49,7 @@ public class LoginActivity extends RxBaseActivity {
     @Override
     public void initToolBar() {
         setSupportActionBar(mToolbar);
-        setTitle("登陆");
+        setTitle("登录");
     }
 
     @OnClick(R.id.btn_login)

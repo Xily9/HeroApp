@@ -356,7 +356,7 @@ public class AnswerActivity extends RxBaseActivity {
                                 startActivity(new Intent(this, PrizeActivity.class));
                                 finish();
                             } else {
-                                new AlertDialog.Builder(this)
+                                AlertDialog.Builder builder = new AlertDialog.Builder(this)
                                         .setTitle("答题结果!")
                                         .setMessage("非常遗憾,你有" + incorrectBeans.size() + "道问题回答错误!!\n按确定回顾,按取消退出")
                                         .setPositiveButton("确定", (c, d) -> {
@@ -382,8 +382,14 @@ public class AnswerActivity extends RxBaseActivity {
                                         })
                                         .setNegativeButton("取消", (c, d) -> {
                                             finish();
-                                        })
-                                        .show();
+                                        });
+                                if (user.get("cheat", false)) {
+                                    builder.setNeutralButton("抽奖(作弊)", (c, d) -> {
+                                        startActivity(new Intent(this, PrizeActivity.class));
+                                        finish();
+                                    });
+                                }
+                                builder.show();
                             }
                             break;
                         default:
